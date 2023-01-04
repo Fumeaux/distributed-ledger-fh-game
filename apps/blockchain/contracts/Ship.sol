@@ -12,7 +12,7 @@ contract Ship is ERC721, Ownable {
     Counters.Counter private _shipIdCounter;
 
     uint256[] public shipIds;
-    mapping(uint256 => uint256) private _armor;
+    mapping(uint256 => uint256) public _armor;
     mapping(uint256 => uint256) private _shipFiredLast;
     mapping(uint256 => uint256) private _enteredRepairMode;
 
@@ -141,5 +141,9 @@ contract Ship is ERC721, Ownable {
             console.log("ShipFiredLast: %s", _shipFiredLast[shipId]);
             console.log("EnteredRepairMode: %s", _enteredRepairMode[shipId]);
         }
+    }
+
+    function getAmmo(uint256 shipId) public view returns (uint256) {
+        return ammo.getAmmo(shipId);
     }
 }

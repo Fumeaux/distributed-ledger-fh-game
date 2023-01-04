@@ -10,5 +10,5 @@ function getProvider() {
 }
 
 export function getReadShipContract(): Ship {
-  return Ship__factory.connect(deploymentAddresses.Lock, getProvider());
+  return Ship__factory.connect(deploymentAddresses.Ship, getProvider().getSigner());
 }

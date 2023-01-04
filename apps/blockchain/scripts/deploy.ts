@@ -25,7 +25,7 @@ async function main() {
   await ship.deployed();
   console.log(`Ship deployed to ${ship.address}`);
 
-  deploymentAddressesBuilder.addDeployment('Lock', ship.address);
+  deploymentAddressesBuilder.addDeployment('Ship', ship.address);
   deploymentAddressesBuilder.generateDeploymentAddressesFile();
 }
 

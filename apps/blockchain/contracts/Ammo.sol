@@ -21,7 +21,7 @@ contract Ammo is ERC20, ERC20Burnable, Ownable {
     }
 
     function mint(uint256 shipId, uint256 amount) public onlyShip {
-        _mint(msg.sender, amount);
+        _mint(_shipContractAddress, amount);
         _shipAmmo[shipId] = amount;
     }
 
