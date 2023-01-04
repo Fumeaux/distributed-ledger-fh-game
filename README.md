@@ -2,6 +2,18 @@
 
 This is an official starter Turborepo.
 
+## How to start developing
+
+* npm install
+* npm run dev
+* in ./apps/blockchain
+* npm run node
+
+um die Contracts neu zu deployen:
+
+* in ./apps/blockchain
+* npm run deploy-dev
+
 ## What's inside?
 
 This Turborepo includes the following packages/apps:
