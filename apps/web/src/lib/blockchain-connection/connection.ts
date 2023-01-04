@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 
-import { Lock__factory, deploymentAddresses } from 'blockchain';
-import type { Lock } from 'blockchain';
+import { Ship__factory, deploymentAddresses } from 'blockchain';
+import type { Ship } from 'blockchain';
 
 function getProvider() {
   // If you don't specify a //url//, Ethers connects to the default
@@ -9,6 +9,6 @@ function getProvider() {
   return new ethers.providers.JsonRpcProvider();
 }
 
-export function getReadLockContract(): Lock {
-  return Lock__factory.connect(deploymentAddresses.Lock, getProvider());
+export function getReadShipContract(): Ship {
+  return Ship__factory.connect(deploymentAddresses.Lock, getProvider());
 }

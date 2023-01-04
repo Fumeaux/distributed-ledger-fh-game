@@ -1,4 +1,4 @@
 import { readable } from 'svelte/store';
-import { getReadLockContract } from './connection';
+import { getReadShipContract } from './connection';
 
-export const readLockContract = readable(getReadLockContract());
+export const readShipContract = readable(getReadShipContract());
