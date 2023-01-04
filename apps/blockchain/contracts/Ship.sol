@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "./Ammo.sol";
 
 contract Ship is ERC721, Ownable {
     using Counters for Counters.Counter;
@@ -12,11 +13,14 @@ contract Ship is ERC721, Ownable {
 
     uint256[] public shipIds;
     mapping(uint256 => uint256) private _armor;
-    mapping(uint256 => uint256) private _ammo;
     mapping(uint256 => uint256) private _shipFiredLast;
     mapping(uint256 => uint256) private _enteredRepairMode;
 
-    constructor() ERC721("Ship", "SHIP") {}
+    Ammo public ammo;
+
+    constructor() ERC721("Ship", "SHIP") {
+        ammo = new Ammo(address(this));
+    }
 
     modifier minimumMsgValue() {
         require(
@@ -32,7 +36,7 @@ contract Ship is ERC721, Ownable {
     }
 
     modifier enoughAmmo(uint256 attackingShipId) {
-        if (_ammo[attackingShipId] > 0) {
+        if (ammo.getAmmo(attackingShipId) > 0) {
             _;
         } else {
             revert("Zu wenig ammo");
@@ -71,7 +75,7 @@ contract Ship is ERC721, Ownable {
         _shipIdCounter.increment();
         _safeMint(msg.sender, shipId);
         _armor[shipId] = 3;
-        _ammo[shipId] = 3;
+        ammo.mint(shipId, 3);
         shipIds.push(shipId);
         console.log("juhu");
     }
@@ -92,12 +96,11 @@ contract Ship is ERC721, Ownable {
             _armor[defendingShipId] -= 1;
         }
 
-        _ammo[attackingShipId] -= 1;
+        ammo.decrement(attackingShipId);
         _shipFiredLast[attackingShipId] = block.number;
 
         if (_armor[defendingShipId] <= 0) {
-            _ammo[attackingShipId] += _ammo[defendingShipId];
-            _ammo[defendingShipId] = 0;
+            ammo.transfer(defendingShipId, attackingShipId);
             remove(defendingShipId);
             _burn(defendingShipId);
         }
@@ -119,8 +122,7 @@ contract Ship is ERC721, Ownable {
         ensureOwner(receivingShipId)
         updateRepairMode
     {
-        _ammo[receivingShipId] += _ammo[givingShipId];
-        _ammo[givingShipId] = 0;
+        ammo.transfer(givingShipId, receivingShipId);
     }
 
     function enterRepairMode(uint256 shipId) public notInRepairMode(shipId) updateRepairMode {
@@ -135,7 +137,7 @@ contract Ship is ERC721, Ownable {
             console.log("ShipId: %s", shipId);
             console.log("Owner: %s", ownerOf(shipId));
             console.log("Armor: %s", _armor[shipId]);
-            console.log("Ammo: %s", _ammo[shipId]);
+            console.log("Ammo: %s", ammo.getAmmo(shipId));
             console.log("ShipFiredLast: %s", _shipFiredLast[shipId]);
             console.log("EnteredRepairMode: %s", _enteredRepairMode[shipId]);
         }
