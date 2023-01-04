@@ -10,11 +10,11 @@ contract Ship is ERC721, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _shipIdCounter;
 
+    uint256[] public shipIds;
     mapping(uint256 => uint256) private _armor;
     mapping(uint256 => uint256) private _ammo;
     mapping(uint256 => uint256) private _shipFiredLast;
-
-    uint256[] public shipIds;
+    mapping(uint256 => uint256) private _enteredRepairMode;
 
     constructor() ERC721("Ship", "SHIP") {}
 
@@ -26,8 +26,8 @@ contract Ship is ERC721, Ownable {
         _;
     }
 
-    modifier gehScheissen(uint256 attackingShipId) {
-        require(ownerOf(attackingShipId) == msg.sender, "Geh scheissen");
+    modifier ensureOwner(uint256 shipId) {
+        require(ownerOf(shipId) == msg.sender, "User has no access to the ship");
         _;
     }
 
@@ -47,6 +47,25 @@ contract Ship is ERC721, Ownable {
         _;
     }
 
+    modifier notInRepairMode(uint256 shipId) {
+        if (_enteredRepairMode[shipId] <= block.number) {
+            _;
+        } else {
+            revert("Ship is in repairmode");
+        }
+    }
+
+    modifier updateRepairMode(){
+        for (uint256 i; i < shipIds.length; i++) {
+            uint256 shipId = shipIds[i];
+            if(_enteredRepairMode[shipId] > 0 && _enteredRepairMode[shipId] <= block.number){
+                _enteredRepairMode[shipId] = 0;
+                _armor[shipId] += 2;
+            }
+        }
+        _;
+    }
+
     function safeMint() public payable {
         uint256 shipId = _shipIdCounter.current();
         _shipIdCounter.increment();
@@ -59,9 +78,11 @@ contract Ship is ERC721, Ownable {
 
     function fire(uint256 attackingShipId, uint256 defendingShipId)
         public
-        gehScheissen(attackingShipId)
+        ensureOwner(attackingShipId)
         enoughAmmo(attackingShipId)
         only1ShotPerBlock(attackingShipId)
+        updateRepairMode
+        notInRepairMode(attackingShipId)
     {
         if (_armor[defendingShipId] > 0) {
             _armor[defendingShipId] -= 1;
@@ -94,22 +115,29 @@ contract Ship is ERC721, Ownable {
 
     function transferAmmo(uint256 givingShipId, uint256 receivingShipId)
         public
-        gehScheissen(givingShipId)
-        gehScheissen(receivingShipId)
+        ensureOwner(givingShipId)
+        ensureOwner(receivingShipId)
+        updateRepairMode
     {
         _ammo[receivingShipId] += _ammo[givingShipId];
         _ammo[givingShipId] = 0;
     }
 
+    function enterRepairMode(uint256 shipId) public notInRepairMode(shipId) updateRepairMode {
+        _enteredRepairMode[shipId] = block.number + 3;
+    }
+
     function test() public view {
         console.log("ShipIds Lenght: %s", shipIds.length);
         for (uint256 i; i < shipIds.length; i++) {
+            uint256 shipId = shipIds[i];
             console.log("---------------------------");
-            console.log("ShipId: %s", shipIds[i]);
-            console.log("Owner: %s", ownerOf(shipIds[i]));
-            console.log("Armor: %s", _armor[shipIds[i]]);
-            console.log("Ammo: %s", _ammo[shipIds[i]]);
-            console.log("ShipFiredLast: %s", _shipFiredLast[shipIds[i]]);
+            console.log("ShipId: %s", shipId);
+            console.log("Owner: %s", ownerOf(shipId));
+            console.log("Armor: %s", _armor[shipId]);
+            console.log("Ammo: %s", _ammo[shipId]);
+            console.log("ShipFiredLast: %s", _shipFiredLast[shipId]);
+            console.log("EnteredRepairMode: %s", _enteredRepairMode[shipId]);
         }
     }
 }
