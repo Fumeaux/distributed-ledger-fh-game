@@ -39,14 +39,14 @@ contract Ship is ERC721, Ownable {
         if (ammo.getAmmo(attackingShipId) > 0) {
             _;
         } else {
-            revert("Zu wenig ammo");
+            revert("Not enough Ammo");
         }
     }
 
     modifier only1ShotPerBlock(uint256 attackingShipId) {
         require(
             block.number > _shipFiredLast[attackingShipId],
-            "du hast schon gschossen"
+            "Fire is not possible. Wait one block"
         );
         _;
     }
@@ -77,7 +77,6 @@ contract Ship is ERC721, Ownable {
         _armor[shipId] = 3;
         ammo.mint(shipId, 3);
         shipIds.push(shipId);
-        console.log("juhu");
     }
 
     function fire(uint256 attackingShipId, uint256 defendingShipId)
@@ -100,7 +99,7 @@ contract Ship is ERC721, Ownable {
         _shipFiredLast[attackingShipId] = block.number;
 
         if (_armor[defendingShipId] <= 0) {
-            ammo.transfer(defendingShipId, attackingShipId);
+            ammo.transferAmmo(defendingShipId, attackingShipId);
             remove(defendingShipId);
             _burn(defendingShipId);
         }
@@ -122,7 +121,7 @@ contract Ship is ERC721, Ownable {
         ensureOwner(receivingShipId)
         updateRepairMode
     {
-        ammo.transfer(givingShipId, receivingShipId);
+        ammo.transferAmmo(givingShipId, receivingShipId);
     }
 
     function enterRepairMode(uint256 shipId) public notInRepairMode(shipId) updateRepairMode {
