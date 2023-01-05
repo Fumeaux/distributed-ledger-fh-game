@@ -29,7 +29,7 @@ contract Ammo is ERC20, ERC20Burnable, Ownable {
         return _shipAmmo[shipId];
     }
 
-    function transfer(uint256 givingShipId, uint256 receivingShipId) public onlyShip {
+    function transferAmmo(uint256 givingShipId, uint256 receivingShipId) public onlyShip {
         _shipAmmo[receivingShipId] += _shipAmmo[givingShipId];
         _shipAmmo[givingShipId] = 0;
     }
