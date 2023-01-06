@@ -74,8 +74,8 @@ contract Ship is ERC721, Ownable {
         uint256 shipId = _shipIdCounter.current();
         _shipIdCounter.increment();
         _safeMint(msg.sender, shipId);
-        _armor[shipId] = 3;
-        ammo.mint(shipId, 3);
+        _armor[shipId] = 10;
+        ammo.mint(shipId, 10);
         shipIds.push(shipId);
     }
 

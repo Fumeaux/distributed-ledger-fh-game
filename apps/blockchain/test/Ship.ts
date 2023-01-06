@@ -5,8 +5,8 @@ import {ethers} from 'hardhat';
 const FIRST_SHIP_ID = 0;
 const SECOND_SHIP_ID = 1;
 const THIRD_SHIP_ID = 2;
-const INITIAL_ARMOR = 3;
-const INITIAL_AMMO = 3;
+const INITIAL_ARMOR = 10;
+const INITIAL_AMMO = 10;
 
 describe('Ship', function () {
     async function deployShipContract() {
@@ -15,9 +15,10 @@ describe('Ship', function () {
         const Ship = await ethers.getContractFactory('Ship');
         const ship = await Ship.deploy();
 
-        await ship.safeMint();
-        await ship.safeMint();
-        await ship.safeMint();
+        const options = {value: ethers.utils.parseEther("0.01")}
+        await ship.safeMint(options);
+        await ship.safeMint(options);
+        await ship.safeMint(options);
         await ship.transferFrom(owner.address, otherAccount.address, THIRD_SHIP_ID);
 
         return {ship, owner, otherAccount};
