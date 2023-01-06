@@ -70,7 +70,7 @@ contract Ship is ERC721, Ownable {
         _;
     }
 
-    function safeMint() public payable {
+    function safeMint() public payable minimumMsgValue {
         uint256 shipId = _shipIdCounter.current();
         _shipIdCounter.increment();
         _safeMint(msg.sender, shipId);

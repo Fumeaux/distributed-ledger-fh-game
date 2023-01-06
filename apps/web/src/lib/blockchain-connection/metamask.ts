@@ -1,14 +1,12 @@
 import detectEthereumProvider from '@metamask/detect-provider';
 import { ethers } from 'ethers';
 
-async function getMetamaskProvider() {
+export async function getMetamaskProvider() {
   const metamaskProvider = await detectEthereumProvider({ mustBeMetaMask: true });
   if (!metamaskProvider) {
     throw new Error('Could not detect Metamask');
   }
   const provider = new ethers.providers.Web3Provider(metamaskProvider);
-
-  //provider.getSigner();
 
   return provider;
 }
@@ -25,7 +23,7 @@ export async function getAccounts(): Promise<string[]> {
  * This method silently (without a popup) as
  * @returns true if and only if metamask is connected with at least one account
  */
-export async function isMetamasConnected(): Promise<boolean> {
+export async function isMetamaskConnected(): Promise<boolean> {
   const accounts = await getAccounts();
   return accounts.length !== 0;
 }
