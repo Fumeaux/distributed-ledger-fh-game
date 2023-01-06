@@ -1,49 +1,57 @@
 <script lang="ts">
-  import { switchAndAddEthereumChain , readShipContract, LOCAL_CHAIN, getAccounts, connectAccounts } from '$lib/blockchain-connection';
-  import type { BigNumber } from 'ethers';
+  import { switchAndAddEthereumChain , readShipContract, LOCAL_CHAIN, getAccounts, connectAccounts, isMetamaskConnected } from '$lib/blockchain-connection';
+  import { ethers, type BigNumber } from 'ethers';
   import { onMount } from 'svelte';
 
   onMount(async () => {
 		await fetchAll();
 	});
 
-  async function test() {
+  async function connect() {
+    await connectAccounts()
 	  await switchAndAddEthereumChain(LOCAL_CHAIN)
   }
 
   async function mint() {
     try {
-      await connectAccounts();
-      const accounts = await getAccounts();
-      console.log(accounts);
-
-      $readShipContract.safeMint();
+      let overrides = {
+        value: ethers.utils.parseEther("0.01")
+      }
+      
+      await $readShipContract?.safeMint(overrides);
     } catch (error) {
       errorField = String(error);
     }
   }
 
   type Ship = {
-    Id: BigNumber,
-    Owner: string,
-    Ammo: BigNumber,
-    Armor: BigNumber,
+    Id: BigNumber | undefined,
+    Owner: string | undefined,
+    Ammo: BigNumber | undefined,
+    Armor: BigNumber | undefined,
+    IsOwner: boolean | undefined,
 }
 
   let ships:Ship[] = [];
 
   async function fetchAll() {
     ships = [];
+    const account = (await getAccounts())[0];
 
     var i:number = 0;
     while(true){
       try {
-        const shipId = await $readShipContract.shipIds(i);
-        const owner = await $readShipContract.ownerOf(shipId);
-        const ammo = await $readShipContract.getAmmo(shipId);
-        const armor = await $readShipContract._armor(shipId);
+        const shipId = await $readShipContract?.shipIds(i);
+        if (shipId === undefined) 
+          break;
+
+        const owner = await (await $readShipContract?.ownerOf(shipId as BigNumber))?.toLowerCase();
+        const ammo = await $readShipContract?.getAmmo(shipId as BigNumber);
+        const armor = await $readShipContract?._armor(shipId as BigNumber);
         
-        const ship: Ship = {Id: shipId, Owner: owner, Ammo: ammo, Armor: armor};
+        console.log(owner);
+        console.log(account);
+        const ship: Ship = {Id: shipId, Owner: owner, Ammo: ammo, Armor: armor, IsOwner: owner === account};
         ships.push(ship);
         ships = ships;
         i++;
@@ -55,19 +63,19 @@
 
   let shipToAttack:BigNumber;
 
-  async function attackWith(shipId:BigNumber) {
+  async function attackWith(shipId:BigNumber | undefined) {
     try {
       errorField = "";
-      await $readShipContract.fire(shipId, shipToAttack);
+      await $readShipContract?.fire(shipId as BigNumber, shipToAttack);
     } catch (error) {
       errorField = String(error);
     }
   }
 
-  async function repair(shipId:BigNumber) {
+  async function repair(shipId:BigNumber | undefined) {
     try {
       errorField = "";
-      await $readShipContract.enterRepairMode(shipId);
+      await $readShipContract?.enterRepairMode(shipId as BigNumber);
     } catch (error) {
       errorField = String(error);
     }
@@ -77,9 +85,25 @@
 
 </script>
 
-<h1>Web</h1>
+<h1>Destroying Ships - The ultimate war experience</h1>
 
-{#await $readShipContract.address}
+{#await isMetamaskConnected()}
+  <p>Metamask Connected: ...waiting</p>
+{:then provider} 
+  <p>Metamask Connected: {provider}</p>
+{:catch error}
+  <p style="color: red">{error.message}</p>
+{/await}
+
+{#await getAccounts()}
+  <p>Accounts: ...waiting</p>
+{:then provider} 
+  <p>Accounts: {provider}</p>
+{:catch error}
+  <p style="color: red">{error.message}</p>
+{/await}
+
+{#await $readShipContract?.address}
   <p>Ship Contract: ...waiting</p>
 {:then address} 
   <p>Ship Contract: {address}</p>
@@ -87,7 +111,7 @@
   <p style="color: red">{error.message}</p>
 {/await}
 
-{#await $readShipContract.ammo()}
+{#await $readShipContract?.ammo()}
   <p>Ammo Contract: ...waiting</p>
 {:then address} 
   <p>Ammo Contract: {address}</p>
@@ -95,7 +119,7 @@
   <p style="color: red">{error.message}</p>
 {/await}
 
-<button on:click={test}>getProvider</button>
+<button on:click={connect}>connect</button>
 
 <button on:click={mint}>mint a ship</button>
 
@@ -118,10 +142,15 @@
     <td>{ship.Owner}</td>
     <td>{ship.Armor}</td>
     <td>{ship.Ammo}</td>
-    <td><button on:click={() => attackWith(ship.Id)} style="width: 100%">fire</button></td>
-    <td><button on:click={() => repair(ship.Id)} style="width: 100%">repair</button></td>
+    <td><button on:click={() => attackWith(ship.Id)} style="width: 100%" disabled={!ship.IsOwner}>fire</button></td>
+    <td><button on:click={() => repair(ship.Id)} style="width: 100%" disabled={!ship.IsOwner}>repair</button></td>
   </tr>
   {/each}
 </table>
 
+<p>----------------------------------------------------</p>
+
+{#if errorField !== ""}
+<button on:click={() => errorField = ""}>clear error</button>
+{/if}
 <p style="color: red">{errorField}</p>
