@@ -6,6 +6,7 @@
   "scripts": {
     "node": "hardhat node",
     "deploy-dev": "hardhat run --network localhost scripts/deploy.ts",
+    "deploy-goerli": "hardhat run --network goerli scripts/deploy.ts",
     "test": "cross-env REPORT_GAS=true hardhat test",
     "build": "hardhat compile"
   },
