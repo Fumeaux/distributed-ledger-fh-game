@@ -18,6 +18,9 @@ contract Ship is ERC721, Ownable {
 
     event MintedShipEvent();
     event FiredEvent();
+    event EnteredRepairModeEvent();
+    event TransferAmmoEvent();
+
 
     Ammo public ammo;
 
@@ -127,10 +130,12 @@ contract Ship is ERC721, Ownable {
         updateRepairMode
     {
         ammo.transferAmmo(givingShipId, receivingShipId);
+        emit TransferAmmoEvent();
     }
 
     function enterRepairMode(uint256 shipId) public notInRepairMode(shipId) updateRepairMode {
         _enteredRepairMode[shipId] = block.number + 3;
+        emit EnteredRepairModeEvent();
     }
 
     function getAmmo(uint256 shipId) public view returns (uint256) {
@@ -138,10 +143,12 @@ contract Ship is ERC721, Ownable {
     }
 
     function isShipExisting(uint256 shipId) public view returns (bool) {
-        if(shipId >= shipIds.length) {
-            return false;
+        for (uint256 i = 0; i < shipIds.length; i++) {
+            if (shipIds[i] == shipId) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     function test() public view {

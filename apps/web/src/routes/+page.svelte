@@ -7,6 +7,8 @@
 		await fetchAll();
 		$readShipContract.on('MintedShipEvent', (from, to, amount, event) => {  fetchAll() });
         $readShipContract.on('FiredEvent', (from, to, amount, event) => {  fetchAll() });
+        $readShipContract.on('EnteredRepairModeEvent', (from, to, amount, event) => {  fetchAll() });
+		$readShipContract.on('TransferAmmoEvent', (from, to, amount, event) => {  fetchAll() });
 	});
 
   async function connect() {
