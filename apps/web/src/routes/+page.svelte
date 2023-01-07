@@ -42,28 +42,25 @@
     ships = [];
     const account = (await getAccounts())[0];
 
-    var i:number = 0;
-    while(true){
-      try {
-        if(!(await $readShipContract?.isShipExisting(i)))
-           break;
+    const amountOfShips = await $readShipContract?.getAmountOfShips();
+    for(let i = 0; i < amountOfShips; i++) {
+        try {
+            const shipId = await $readShipContract?.shipIds(i);
+            if (shipId === undefined)
+              break;
 
-        const shipId = await $readShipContract?.shipIds(i);
-        if (shipId === undefined) 
-          break;
+            const owner = await (await $readShipContract?.ownerOf(shipId as BigNumber))?.toLowerCase();
+            const ammo = await $readShipContract?.getAmmo(shipId as BigNumber);
+            const armor = await $readShipContract?._armor(shipId as BigNumber);
 
-        const owner = await (await $readShipContract?.ownerOf(shipId as BigNumber))?.toLowerCase();
-        const ammo = await $readShipContract?.getAmmo(shipId as BigNumber);
-        const armor = await $readShipContract?._armor(shipId as BigNumber);
-
-        const ship: Ship = {Id: shipId, Owner: owner, Ammo: ammo, Armor: armor, IsOwner: owner === account};
-        ships.push(ship);
-        ships = ships;
-        i++;
-      } catch (e) {
-        break;
-      }
+            const ship: Ship = {Id: shipId, Owner: owner, Ammo: ammo, Armor: armor, IsOwner: owner === account};
+            ships.push(ship);
+            ships = ships;
+          } catch (e) {
+            break;
+          }
     }
+   ships = ships.sort((n1,n2) => n1.Id - n2.Id);
   }
 
   let defendingShipId:BigNumber;
