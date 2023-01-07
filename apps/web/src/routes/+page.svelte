@@ -5,6 +5,8 @@
 
   onMount(async () => {
 		await fetchAll();
+		$readShipContract.on('MintedShipEvent', (from, to, amount, event) => {  fetchAll() });
+        $readShipContract.on('FiredEvent', (from, to, amount, event) => {  fetchAll() });
 	});
 
   async function connect() {
@@ -48,9 +50,7 @@
         const owner = await (await $readShipContract?.ownerOf(shipId as BigNumber))?.toLowerCase();
         const ammo = await $readShipContract?.getAmmo(shipId as BigNumber);
         const armor = await $readShipContract?._armor(shipId as BigNumber);
-        
-        console.log(owner);
-        console.log(account);
+
         const ship: Ship = {Id: shipId, Owner: owner, Ammo: ammo, Armor: armor, IsOwner: owner === account};
         ships.push(ship);
         ships = ships;

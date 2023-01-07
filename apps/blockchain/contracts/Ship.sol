@@ -16,6 +16,9 @@ contract Ship is ERC721, Ownable {
     mapping(uint256 => uint256) private _shipFiredLast;
     mapping(uint256 => uint256) private _enteredRepairMode;
 
+    event MintedShipEvent();
+    event FiredEvent();
+
     Ammo public ammo;
 
     constructor() ERC721("Ship", "SHIP") {
@@ -77,6 +80,7 @@ contract Ship is ERC721, Ownable {
         _armor[shipId] = 10;
         ammo.mint(shipId, 10);
         shipIds.push(shipId);
+        emit MintedShipEvent();
     }
 
     function fire(uint256 attackingShipId, uint256 defendingShipId)
@@ -103,6 +107,7 @@ contract Ship is ERC721, Ownable {
             remove(defendingShipId);
             _burn(defendingShipId);
         }
+        emit FiredEvent();
     }
 
     function remove(uint256 shipId) private {
@@ -128,6 +133,10 @@ contract Ship is ERC721, Ownable {
         _enteredRepairMode[shipId] = block.number + 3;
     }
 
+    function getAmmo(uint256 shipId) public view returns (uint256) {
+        return ammo.getAmmo(shipId);
+    }
+
     function test() public view {
         console.log("ShipIds Lenght: %s", shipIds.length);
         for (uint256 i; i < shipIds.length; i++) {
@@ -140,9 +149,5 @@ contract Ship is ERC721, Ownable {
             console.log("ShipFiredLast: %s", _shipFiredLast[shipId]);
             console.log("EnteredRepairMode: %s", _enteredRepairMode[shipId]);
         }
-    }
-
-    function getAmmo(uint256 shipId) public view returns (uint256) {
-        return ammo.getAmmo(shipId);
     }
 }
