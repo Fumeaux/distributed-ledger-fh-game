@@ -43,6 +43,9 @@
     var i:number = 0;
     while(true){
       try {
+        if(!(await $readShipContract?.isShipExisting(i)))
+           break;
+
         const shipId = await $readShipContract?.shipIds(i);
         if (shipId === undefined) 
           break;
@@ -55,7 +58,7 @@
         ships.push(ship);
         ships = ships;
         i++;
-      } catch (error) {
+      } catch (e) {
         break;
       }
     }

@@ -137,6 +137,13 @@ contract Ship is ERC721, Ownable {
         return ammo.getAmmo(shipId);
     }
 
+    function isShipExisting(uint256 shipId) public view returns (bool) {
+        if(shipId >= shipIds.length) {
+            return false;
+        }
+        return true;
+    }
+
     function test() public view {
         console.log("ShipIds Lenght: %s", shipIds.length);
         for (uint256 i; i < shipIds.length; i++) {
