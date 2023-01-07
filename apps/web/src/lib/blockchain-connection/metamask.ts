@@ -1,14 +1,12 @@
 import detectEthereumProvider from '@metamask/detect-provider';
-import { ethers } from 'ethers';
+import {ethers} from 'ethers';
 
 export async function getMetamaskProvider() {
   const metamaskProvider = await detectEthereumProvider({ mustBeMetaMask: true });
   if (!metamaskProvider) {
     throw new Error('Could not detect Metamask');
   }
-  const provider = new ethers.providers.Web3Provider(metamaskProvider);
-
-  return provider;
+  return new ethers.providers.Web3Provider(metamaskProvider);
 }
 
 /**
