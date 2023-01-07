@@ -86,6 +86,17 @@
     }
   }
 
+  let givingShipId:BigNumber;
+
+  async function transferAmmo(receivingShipId:BigNumber | undefined) {
+      try {
+        errorField = "";
+        await $readShipContract?.transferAmmo(givingShipId, receivingShipId as BigNumber);
+      } catch (error) {
+        errorField = String(error);
+      }
+    }
+
   let errorField = "";
 
 </script>
@@ -101,9 +112,9 @@
 {/await}
 
 {#await getAccounts()}
-  <p>Accounts: ...waiting</p>
+  <p>Account: ...waiting</p>
 {:then provider} 
-  <p>Accounts: {provider}</p>
+  <p>Account: {provider}</p>
 {:catch error}
   <p style="color: red">{error.message}</p>
 {/await}
@@ -132,22 +143,24 @@
 
 <p>----------------------------------------------------</p>
 
-<table>
+<table border="1" cellpadding="10">
   <tr>
     <th>ShipId</th>
     <th>Owner</th>
     <th>Armor</th>
     <th>Ammo</th>
-    <th>Attack <input type="text" bind:value={shipToAttack} style="width: 50px;"></th>
+    <th>Attack <input type="text" bind:value={shipToAttack} placeholder="attacking ship id" style="width: 100px;"></th>
+    <th>Transfer Ammo <input type="text" bind:value={givingShipId} placeholder="giving ship id" style="width: 80px;"></th>
     <th>Repair</th>
   </tr>
   {#each ships as ship}
   <tr>
-    <td>{ship.Id}</td>
-    <td>{ship.Owner}</td>
-    <td>{ship.Armor}</td>
-    <td>{ship.Ammo}</td>
+    <td align="center">{ship.Id}</td>
+    <td align="center">{ship.Owner}</td>
+    <td align="center">{ship.Armor}</td>
+    <td align="center">{ship.Ammo}</td>
     <td><button on:click={() => attackWith(ship.Id)} style="width: 100%" disabled={!ship.IsOwner}>fire</button></td>
+    <td><button on:click={() => transferAmmo(ship.Id)} style="width: 100%" disabled={!ship.IsOwner}>transfer ammo</button></td>
     <td><button on:click={() => repair(ship.Id)} style="width: 100%" disabled={!ship.IsOwner}>repair</button></td>
   </tr>
   {/each}
