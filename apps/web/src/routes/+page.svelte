@@ -101,6 +101,10 @@
 
 </script>
 
+<svelte:head>
+    <title>Destroying Ships</title>
+</svelte:head>
+
 <h1>Destroying Ships - The ultimate war experience</h1>
 
 {#await isMetamaskConnected()}
@@ -141,11 +145,11 @@
 
 <button on:click={fetchAll}>update ship list</button>
 
-<p>----------------------------------------------------</p>
+<p></p>
 
 <table border="1" cellpadding="10">
   <tr>
-    <th>ShipId</th>
+    <th>Ship Id</th>
     <th>Owner</th>
     <th>Armor</th>
     <th>Ammo</th>
@@ -166,7 +170,7 @@
   {/each}
 </table>
 
-<p>----------------------------------------------------</p>
+<p></p>
 
 {#if errorField !== ""}
 <button on:click={() => errorField = ""}>clear error</button>
