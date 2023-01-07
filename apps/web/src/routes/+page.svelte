@@ -66,12 +66,12 @@
     }
   }
 
-  let shipToAttack:BigNumber;
+  let defendingShipId:BigNumber;
 
-  async function attackWith(shipId:BigNumber | undefined) {
+  async function attackWith(attackingShipId:BigNumber | undefined) {
     try {
       errorField = "";
-      await $readShipContract?.fire(shipId as BigNumber, shipToAttack);
+      await $readShipContract?.fire(attackingShipId as BigNumber, defendingShipId);
     } catch (error) {
       errorField = String(error);
     }
@@ -86,12 +86,12 @@
     }
   }
 
-  let givingShipId:BigNumber;
+  let receivingShipId:BigNumber;
 
-  async function transferAmmo(receivingShipId:BigNumber | undefined) {
+  async function transferAmmo(givingShipId:BigNumber | undefined) {
       try {
         errorField = "";
-        await $readShipContract?.transferAmmo(givingShipId, receivingShipId as BigNumber);
+        await $readShipContract?.transferAmmo(givingShipId as BigNumber, receivingShipId);
       } catch (error) {
         errorField = String(error);
       }
@@ -153,8 +153,8 @@
     <th>Owner</th>
     <th>Armor</th>
     <th>Ammo</th>
-    <th>Attack <input type="text" bind:value={shipToAttack} placeholder="attacking ship id" style="width: 100px;"></th>
-    <th>Transfer Ammo <input type="text" bind:value={givingShipId} placeholder="giving ship id" style="width: 80px;"></th>
+    <th>Attack <input type="text" bind:value={defendingShipId} placeholder="defending ship id" style="width: 110px;"></th>
+    <th>Transfer Ammo <input type="text" bind:value={receivingShipId} placeholder="receiving ship id" style="width: 100px;"></th>
     <th>Repair</th>
   </tr>
   {#each ships as ship}
