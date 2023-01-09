@@ -57,6 +57,30 @@ describe('Ship', function () {
 
     });
 
+    describe('Safe Mint', function () {
+        it('Should mint one ship', async function () {
+            const {ship} = await loadFixture(deployShipContract);
+            const options = {value: ethers.utils.parseEther("0.01")}
+            await ship.safeMint(options);
+            expect(await ship.shipIds(FIRST_SHIP_ID)).not.null;
+            expect(await ship._armor(FIRST_SHIP_ID)).to.equal(INITIAL_ARMOR);
+            expect(await ship.getAmmo(FIRST_SHIP_ID)).to.equal(INITIAL_AMMO);
+        });
+        it('Should assert safeMint() failed because 0.001 ether is sent', async function () {
+            const {ship} = await loadFixture(deployShipContract);
+            const options = {value: ethers.utils.parseEther("0.001")}
+            await expect(ship.safeMint(options)).to.be.revertedWith("Minimum value not reached, 0.01 ether is required");
+        });
+        it('Should mint one ship because 1 ether is sent', async function () {
+            const {ship} = await loadFixture(deployShipContract);
+            const options = {value: ethers.utils.parseEther("1")}
+            await ship.safeMint(options);
+            expect(await ship.shipIds(FIRST_SHIP_ID)).not.null;
+            expect(await ship._armor(FIRST_SHIP_ID)).to.equal(INITIAL_ARMOR);
+            expect(await ship.getAmmo(FIRST_SHIP_ID)).to.equal(INITIAL_AMMO);
+        });
+    });
+
     describe('Fire', function () {
         it('Should decrease armor of second ship by 2 and ammo of first ship by 1', async function () {
             const {ship} = await loadFixture(deployShipContractAndMintThreeShips);
